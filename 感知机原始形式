@@ -1,0 +1,52 @@
+import numpy as np
+
+"""
+输入:训练数据集T;学习率n(0<n≤1); 
+输出:w,b;感知机模型f(x)=sign(w·x+b)。
+(1)选取初值w0;b0: 
+(2)在训练集中选取数据(xi,yi); 
+(3)如果yi(w ·xi+b)≤0, w->w+n*yi*xi b->b+n*yi 
+(4)转至(2),直至训练集中没有误分类点。
+"""
+
+
+def update(item):  # 对应算法中的第三步,运用随机梯度下降，每次只用一个误分类点推动算法更新
+    global w, b
+    w += l * item[-1] * item[:-1]
+    b += l * item[-1]
+
+
+def check():  # 对应算法中的第四步
+    # 误分类点应该满足yi*(w*xi+b) <= 0
+    separated_flag = True  # 默认全部完成分类
+    for train_item in train_set:
+        yi = train_item[-1]
+        xi = train_item[:-1]
+        res = yi * (np.sum(w * xi) + b)
+        if res <= 0:
+            separated_flag = False  # 发现错误分离点
+            update(train_item)
+            print("更新参数为：w = {}, b = {}".format(w, b))
+    return separated_flag
+
+
+if __name__ == '__main__':
+    # train_set = np.array([[3, 3, 1],  # 设置训练集
+    #                       [4, 3, 1],
+    #                       [1, 1, -1]])
+    train_set1 = np.random.normal(3, size=(10, 3))
+    train_set2 = np.random.normal(7, size=(10, 3))
+    train_set = np.concatenate((train_set1, train_set2), axis=0)
+    for i in train_set:
+        if i[-1] < 5:
+            i[-1] = -1
+        else:
+            i[-1] = 1
+    # print(train_set)
+    w = np.array([0., 0.])  # 权重
+    b = 0.  # 偏置
+    l = 1  # 学习率
+    for i in range(150):    # 迭代50次
+        if check():
+            print("第{}次完成全部分离".format(i))
+            break
